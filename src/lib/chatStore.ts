@@ -163,6 +163,33 @@ export function simulateSendConfirm(
   }, 400);
 }
 
+/** Get all messages with status "pending" (sent while offline). */
+function getPendingMessages(): Array<{ threadId: string; messageId: string }> {
+  const data = getSnapshot();
+  const out: Array<{ threadId: string; messageId: string }> = [];
+  for (const [threadId, list] of Object.entries(data.messages)) {
+    for (const m of list) {
+      if (m.status === "pending") out.push({ threadId, messageId: m.id });
+    }
+  }
+  return out;
+}
+
+/** When back online: mark all pending messages as sending, then sent. */
+export function flushPendingMessages(): void {
+  const pending = getPendingMessages();
+  for (const { threadId, messageId } of pending) {
+    setMessageStatus(threadId, messageId, "sending");
+  }
+  if (pending.length > 0) {
+    setTimeout(() => {
+      for (const { threadId, messageId } of pending) {
+        setMessageStatus(threadId, messageId, "sent");
+      }
+    }, 400);
+  }
+}
+
 /** Mark messages in thread (not from userId) as read. */
 export function markThreadReadBy(threadId: string, userId: string): void {
   const data = load();

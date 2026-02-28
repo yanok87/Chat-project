@@ -38,16 +38,17 @@ export function VisitorView() {
   const handleSend = useCallback(
     (content: string) => {
       if (!visitorId || !threadId) return;
+      const isOffline = typeof navigator !== "undefined" && !navigator.onLine;
       const newMessage: Message = {
         id: crypto.randomUUID(),
         threadId,
         senderId: visitorId,
         content,
         createdAt: Date.now(),
-        status: "sending",
+        status: isOffline ? "pending" : "sending",
       };
       addMessageToStore(newMessage);
-      simulateSendConfirm(threadId, newMessage.id);
+      if (!isOffline) simulateSendConfirm(threadId, newMessage.id);
     },
     [threadId, visitorId]
   );

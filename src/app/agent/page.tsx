@@ -30,16 +30,17 @@ export default function AgentPage() {
   const handleSend = useCallback(
     (content: string) => {
       if (!selectedThreadId) return;
+      const isOffline = typeof navigator !== "undefined" && !navigator.onLine;
       const newMessage: Message = {
         id: crypto.randomUUID(),
         threadId: selectedThreadId,
         senderId: AGENT_ID,
         content,
         createdAt: Date.now(),
-        status: "sending",
+        status: isOffline ? "pending" : "sending",
       };
       addMessage(newMessage);
-      simulateSendConfirm(selectedThreadId, newMessage.id);
+      if (!isOffline) simulateSendConfirm(selectedThreadId, newMessage.id);
     },
     [selectedThreadId]
   );

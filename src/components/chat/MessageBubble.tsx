@@ -38,6 +38,11 @@ export function MessageBubble({ message, isOwn, onRetry }: MessageBubbleProps) {
               Sending…
             </span>
           )}
+          {message.status === "pending" && (
+            <span className="text-xs opacity-80" aria-live="polite">
+              Pending (will send when online)
+            </span>
+          )}
           {message.status === "failed" && (
             <span className="text-xs text-red-200" aria-live="assertive">
               Failed

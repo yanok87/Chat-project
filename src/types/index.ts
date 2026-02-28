@@ -15,7 +15,7 @@ export interface Participant {
 }
 
 /** Delivery state for realtime/optimistic UI */
-export type MessageStatus = "sending" | "sent" | "failed";
+export type MessageStatus = "sending" | "sent" | "failed" | "pending";
 
 export interface Message {
   id: string;

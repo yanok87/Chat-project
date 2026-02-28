@@ -1,19 +1,27 @@
 "use client";
 
-import { useState, useCallback, KeyboardEvent } from "react";
+import { useState, useCallback, useEffect, useRef, KeyboardEvent } from "react";
 
 interface ChatInputProps {
   onSend: (content: string) => void;
   disabled?: boolean;
   placeholder?: string;
+  /** Focus the input when mounted (e.g. when chat panel opens) */
+  autoFocus?: boolean;
 }
 
 export function ChatInput({
   onSend,
   disabled = false,
   placeholder = "Type a message…",
+  autoFocus = false,
 }: ChatInputProps) {
   const [value, setValue] = useState("");
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (autoFocus) inputRef.current?.focus();
+  }, [autoFocus]);
 
   const send = useCallback(() => {
     const trimmed = value.trim();
@@ -32,6 +40,7 @@ export function ChatInput({
   return (
     <div className="flex gap-2 p-3 border-t border-gray-200 bg-white">
       <textarea
+        ref={inputRef}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}

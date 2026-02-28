@@ -73,7 +73,7 @@ export function ChatWidget({
             </button>
           </div>
           <MessageList messages={messages} currentUserId={currentUserId} onRetry={onRetry} />
-          <ChatInput onSend={onSend} disabled={disabled} />
+          <ChatInput onSend={onSend} disabled={disabled} autoFocus />
         </div>
       )}
     </>

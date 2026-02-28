@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { StoreInit } from "@/components/StoreInit";
+import { OfflineBanner } from "@/components/OfflineBanner";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export const metadata: Metadata = {
   title: "MiniCom",
@@ -16,7 +18,8 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased">
         <StoreInit />
-        {children}
+        <OfflineBanner />
+        <ErrorBoundary>{children}</ErrorBoundary>
       </body>
     </html>
   );

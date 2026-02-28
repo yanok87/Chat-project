@@ -8,7 +8,8 @@ src/
 │   ├── layout.tsx
 │   ├── page.tsx            # Home / visitor entry
 │   └── globals.css
-├── components/             # Reusable UI (chat, agent, ui)
+├── components/
+│   ├── chat/               # Visitor widget: ChatWidget, MessageList, MessageBubble, ChatInput, VisitorView
 ├── lib/                    # Store, transport, utils
 ├── types/                  # Data model (thread, message, participant)
 └── FOLDER_STRUCTURE.md     # This file

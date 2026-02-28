@@ -1,0 +1,55 @@
+"use client";
+
+import { useState, useCallback, KeyboardEvent } from "react";
+
+interface ChatInputProps {
+  onSend: (content: string) => void;
+  disabled?: boolean;
+  placeholder?: string;
+}
+
+export function ChatInput({
+  onSend,
+  disabled = false,
+  placeholder = "Type a message…",
+}: ChatInputProps) {
+  const [value, setValue] = useState("");
+
+  const send = useCallback(() => {
+    const trimmed = value.trim();
+    if (!trimmed || disabled) return;
+    onSend(trimmed);
+    setValue("");
+  }, [value, disabled, onSend]);
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      send();
+    }
+  };
+
+  return (
+    <div className="flex gap-2 p-3 border-t border-gray-200 bg-white">
+      <textarea
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
+        disabled={disabled}
+        rows={1}
+        className="flex-1 min-h-[40px] max-h-32 resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+        aria-label="Message input"
+      />
+      <button
+        type="button"
+        onClick={send}
+        disabled={disabled || !value.trim()}
+        className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        aria-label="Send message"
+      >
+        Send
+      </button>
+    </div>
+  );
+}

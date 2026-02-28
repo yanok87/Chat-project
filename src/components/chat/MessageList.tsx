@@ -8,9 +8,11 @@ interface MessageListProps {
   messages: Message[];
   currentUserId: string;
   className?: string;
+  /** Called when user clicks Retry on a failed message (messageId) */
+  onRetry?: (messageId: string) => void;
 }
 
-export function MessageList({ messages, currentUserId, className = "" }: MessageListProps) {
+export function MessageList({ messages, currentUserId, className = "", onRetry }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -32,6 +34,7 @@ export function MessageList({ messages, currentUserId, className = "" }: Message
             key={msg.id}
             message={msg}
             isOwn={msg.senderId === currentUserId}
+            onRetry={onRetry ? () => onRetry(msg.id) : undefined}
           />
         ))
       )}

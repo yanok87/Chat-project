@@ -14,6 +14,8 @@ interface ChatWidgetProps {
   title?: string;
   /** Disable input until e.g. client ids are ready */
   disabled?: boolean;
+  /** Called when user clicks Retry on a failed message (messageId) */
+  onRetry?: (messageId: string) => void;
 }
 
 export function ChatWidget({
@@ -23,6 +25,7 @@ export function ChatWidget({
   onSend,
   title = "Chat",
   disabled = false,
+  onRetry,
 }: ChatWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -69,7 +72,7 @@ export function ChatWidget({
               </svg>
             </button>
           </div>
-          <MessageList messages={messages} currentUserId={currentUserId} />
+          <MessageList messages={messages} currentUserId={currentUserId} onRetry={onRetry} />
           <ChatInput onSend={onSend} disabled={disabled} />
         </div>
       )}

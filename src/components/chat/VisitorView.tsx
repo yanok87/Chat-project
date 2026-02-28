@@ -3,7 +3,13 @@
 import { useState, useCallback, useEffect } from "react";
 import type { Message } from "@/types";
 import { ChatWidget } from "./ChatWidget";
-import { useStore, addMessage as addMessageToStore, getMessages } from "@/lib/chatStore";
+import {
+  useStore,
+  addMessage as addMessageToStore,
+  getMessages,
+  simulateSendConfirm,
+  retryMessage,
+} from "@/lib/chatStore";
 
 const VISITOR_ID_KEY = "minicom-visitor-id";
 const THREAD_ID_KEY = "minicom-thread-id";
@@ -38,11 +44,19 @@ export function VisitorView() {
         senderId: visitorId,
         content,
         createdAt: Date.now(),
-        status: "sent",
+        status: "sending",
       };
       addMessageToStore(newMessage);
+      simulateSendConfirm(threadId, newMessage.id);
     },
     [threadId, visitorId]
+  );
+
+  const handleRetry = useCallback(
+    (messageId: string) => {
+      retryMessage(threadId, messageId);
+    },
+    [threadId]
   );
 
   return (
@@ -88,6 +102,7 @@ export function VisitorView() {
         threadId={threadId}
         messages={messages}
         onSend={handleSend}
+        onRetry={handleRetry}
         title="Support"
         disabled={!visitorId}
       />

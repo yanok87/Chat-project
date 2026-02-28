@@ -13,7 +13,7 @@ src/
 │   ├── agent/              # Agent app: AgentInbox (keyboard nav), AgentThreadView
 │   └── StoreInit.tsx       # Inits store from localStorage on load
 ├── lib/
-│   ├── chatStore.ts        # localStorage store, useStore(), addMessage, getThreadsForInbox, getMessages, markThreadReadBy
+│   ├── chatStore.ts        # localStorage store; optimistic send (sending→sent/failed), setMessageStatus, retryMessage, simulateSendConfirm; upsert by id (out-of-order safe)
 ├── types/                  # Data model (thread, message, participant)
 └── FOLDER_STRUCTURE.md     # This file
 ```

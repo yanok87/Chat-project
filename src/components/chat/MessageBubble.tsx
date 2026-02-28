@@ -6,9 +6,13 @@ interface MessageBubbleProps {
   message: Message;
   /** If true, show on the right (visitor); otherwise left (agent) */
   isOwn: boolean;
+  /** Called when user clicks Retry on a failed message (only for own messages) */
+  onRetry?: () => void;
 }
 
-export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
+export function MessageBubble({ message, isOwn, onRetry }: MessageBubbleProps) {
+  const showRetry = isOwn && message.status === "failed" && onRetry;
+
   return (
     <div
       className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
@@ -22,7 +26,7 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
         }`}
       >
         <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
-        <div className={`flex items-center gap-2 mt-1 ${isOwn ? "justify-end" : "justify-start"}`}>
+        <div className={`flex items-center gap-2 mt-1 flex-wrap ${isOwn ? "justify-end" : "justify-start"}`}>
           <span className="text-xs opacity-80">
             {new Date(message.createdAt).toLocaleTimeString(undefined, {
               hour: "2-digit",
@@ -38,6 +42,16 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
             <span className="text-xs text-red-200" aria-live="assertive">
               Failed
             </span>
+          )}
+          {showRetry && (
+            <button
+              type="button"
+              onClick={onRetry}
+              className="text-xs font-medium underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-white/80 rounded"
+              aria-label="Retry sending message"
+            >
+              Retry
+            </button>
           )}
         </div>
       </div>

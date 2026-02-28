@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import type { Thread, Message, ThreadInboxItem } from "@/types";
+import type { Thread, Message, ThreadInboxItem, MessageStatus } from "@/types";
 
 const STORAGE_KEY = "minicom-data";
 export const AGENT_ID = "agent-1";
@@ -14,6 +14,9 @@ export interface StoreData {
 function defaultData(): StoreData {
   return { threads: {}, messages: {} };
 }
+
+/** Cached empty snapshot for getServerSnapshot (must be stable to avoid infinite loop). */
+const emptySnapshot: StoreData = defaultData();
 
 function load(): StoreData {
   if (typeof window === "undefined") return defaultData();
@@ -81,11 +84,11 @@ export function initStore(): void {
 
 /** React hook: subscribe to store and return current data. */
 export function useStore(): StoreData {
-  return useSyncExternalStore(
-    subscribe,
-    getSnapshot,
-    () => defaultData()
-  );
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+}
+
+function getServerSnapshot(): StoreData {
+  return emptySnapshot;
 }
 
 /** Create thread if missing. Call before adding first message. */
@@ -103,7 +106,7 @@ export function ensureThread(threadId: string, visitorId: string): void {
   save(data);
 }
 
-/** Append message and update thread.updatedAt. Creates thread if visitor sends first. */
+/** Upsert message by id (handles out-of-order and duplicates). Updates thread.updatedAt. */
 export function addMessage(message: Message): void {
   const data = load();
   if (!data.threads[message.threadId] && message.senderId !== AGENT_ID) {
@@ -116,11 +119,48 @@ export function addMessage(message: Message): void {
     };
   }
   const list = data.messages[message.threadId] ?? [];
-  list.push(message);
+  const idx = list.findIndex((m) => m.id === message.id);
+  if (idx >= 0) {
+    list[idx] = { ...list[idx], ...message };
+  } else {
+    list.push(message);
+  }
   data.messages[message.threadId] = list;
   const thread = data.threads[message.threadId];
-  if (thread) thread.updatedAt = message.createdAt;
+  if (thread) thread.updatedAt = Math.max(thread.updatedAt, message.createdAt);
   save(data);
+}
+
+/** Update a message's status (for optimistic send → sent/failed). */
+export function setMessageStatus(threadId: string, messageId: string, status: MessageStatus): void {
+  const data = load();
+  const list = data.messages[threadId];
+  if (!list) return;
+  const msg = list.find((m) => m.id === messageId);
+  if (!msg) return;
+  msg.status = status;
+  save(data);
+}
+
+/** Retry a failed message: set sending then sent (simulated success on retry). */
+export function retryMessage(threadId: string, messageId: string): void {
+  setMessageStatus(threadId, messageId, "sending");
+  setTimeout(() => setMessageStatus(threadId, messageId, "sent"), 400);
+}
+
+/** 0–1. Set to 1 to force every send to "fail" so you can test the Retry flow. */
+export const SEND_FAIL_RATE_FOR_DEMO = 0.2;
+
+/** Simulate async send: after delay, set message to sent or failed (for demo). */
+export function simulateSendConfirm(
+  threadId: string,
+  messageId: string,
+  failRate = SEND_FAIL_RATE_FOR_DEMO
+): void {
+  setTimeout(() => {
+    const status: MessageStatus = Math.random() < failRate ? "failed" : "sent";
+    setMessageStatus(threadId, messageId, status);
+  }, 400);
 }
 
 /** Mark messages in thread (not from userId) as read. */

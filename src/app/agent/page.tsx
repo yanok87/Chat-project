@@ -8,6 +8,8 @@ import {
   getMessages,
   addMessage,
   markThreadReadBy,
+  retryMessage,
+  simulateSendConfirm,
   AGENT_ID,
 } from "@/lib/chatStore";
 import { AgentInbox } from "@/components/agent/AgentInbox";
@@ -34,9 +36,18 @@ export default function AgentPage() {
         senderId: AGENT_ID,
         content,
         createdAt: Date.now(),
-        status: "sent",
+        status: "sending",
       };
       addMessage(newMessage);
+      simulateSendConfirm(selectedThreadId, newMessage.id);
+    },
+    [selectedThreadId]
+  );
+
+  const handleRetry = useCallback(
+    (messageId: string) => {
+      if (!selectedThreadId) return;
+      retryMessage(selectedThreadId, messageId);
     },
     [selectedThreadId]
   );
@@ -66,6 +77,7 @@ export default function AgentPage() {
               threadId={selectedThreadId}
               messages={messages}
               onSend={handleSend}
+              onRetry={handleRetry}
             />
           ) : (
             <div className="flex-1 flex items-center justify-center text-gray-500">

@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import type { Message } from "@/types";
 import { ChatWidget } from "./ChatWidget";
+import { useStore, addMessage as addMessageToStore, getMessages } from "@/lib/chatStore";
 
 const VISITOR_ID_KEY = "minicom-visitor-id";
 const THREAD_ID_KEY = "minicom-thread-id";
@@ -20,7 +21,8 @@ function getOrCreateId(key: string): string {
 export function VisitorView() {
   const [visitorId, setVisitorId] = useState("");
   const [threadId, setThreadId] = useState("");
-  const [messages, setMessages] = useState<Message[]>([]);
+  useStore(); // re-render when store updates (e.g. agent reply from another tab)
+  const messages = threadId ? getMessages(threadId) : [];
 
   useEffect(() => {
     setVisitorId(getOrCreateId(VISITOR_ID_KEY));
@@ -38,7 +40,7 @@ export function VisitorView() {
         createdAt: Date.now(),
         status: "sent",
       };
-      setMessages((prev) => [...prev, newMessage]);
+      addMessageToStore(newMessage);
     },
     [threadId, visitorId]
   );

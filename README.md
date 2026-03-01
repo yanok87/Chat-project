@@ -4,7 +4,8 @@ A prototype live customer support system (visitor chat widget + agent inbox), bu
 
 ## Project overview
 
-- **Visitor app** (`/`): A mock marketing site with a bottom-right chat widget. Visitors can start a conversation, see message bubbles, scrollable history, auto-scroll on new messages, and delivery states (sending / sent / failed) with Retry.
+- **Home** (`/`): Entry point with “Enter as user” and “Enter as support agent”.
+- **Visitor app** (`/visitor`): A mock marketing site with a bottom-right chat widget. Visitors can start a conversation, see message bubbles, scrollable history, auto-scroll on new messages, and delivery states (sending / sent / failed) with Retry.
 - **Agent app** (`/agent`): Inbox of open conversations with unread counts and last message preview (sorted by unread then recent). Click a thread to open it and reply; messages are synced back to the visitor via the same store.
 - **Realtime**: Simulated with **localStorage** and the **storage event** so multiple tabs stay in sync. Optimistic send, retry on failure, out-of-order message handling (upsert by id, sort by `createdAt`).
 - **Resilience**: Error boundary catches render errors and shows a fallback; offline banner appears when the user is offline.
@@ -16,7 +17,8 @@ A prototype live customer support system (visitor chat widget + agent inbox), bu
 │  Next.js App (single origin)                                     │
 ├─────────────────────────────────────────────────────────────────┤
 │  Routes:                                                          │
-│    /         → VisitorView (mock site + ChatWidget)              │
+│    /         → Home (Enter as user / Enter as support agent)      │
+│    /visitor  → VisitorView (mock site + ChatWidget)              │
 │    /agent    → Agent inbox list + AgentThreadView                │
 ├─────────────────────────────────────────────────────────────────┤
 │  Shared layer                                                     │
@@ -63,8 +65,8 @@ npm run build
 npm run test   # Jest + React Testing Library
 ```
 
-- **Visitor**: Open `/`, use the chat button, send messages.
-- **Agent**: Open `/agent`, pick a conversation, reply. Use another tab or window for `/` to see replies in the widget.
+- **Visitor**: Open `/`, click “Enter as user”, then use the chat button and send messages.
+- **Agent**: Open `/`, click “Enter as support agent” (or go to `/agent`), pick a conversation, reply. Use another tab for `/visitor` to see replies in the widget.
 - **Test failed send**: In `src/lib/chatStore.ts` set `SEND_FAIL_RATE_FOR_DEMO = 1`, then send a message and use the Retry button.
 
 ## Submission checklist

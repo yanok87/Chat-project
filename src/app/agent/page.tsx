@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   useStore,
   getThreadsForInbox,
-  getMessages,
+  getMessagesForDisplay,
   addMessage,
   markThreadReadBy,
   retryMessage,
@@ -23,7 +23,7 @@ export default function AgentPage() {
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
 
   const threads = getThreadsForInbox(AGENT_ID);
-  const messages = selectedThreadId ? getMessages(selectedThreadId) : [];
+  const messages = selectedThreadId ? getMessagesForDisplay(selectedThreadId, AGENT_ID) : [];
 
   // Mark thread as read when agent opens it or when messages change (e.g. agent replied or visitor sent)
   useEffect(() => {

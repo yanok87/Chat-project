@@ -218,14 +218,15 @@ export function markThreadReadBy(threadId: string, userId: string): void {
   }
 }
 
-/** Inbox list: threads with lastMessage and unreadCount, sorted by unread then recent. */
+/** Inbox list: threads with lastMessage and unreadCount, sorted by unread then recent. Only "sent" messages count for lastMessage and unread. */
 export function getThreadsForInbox(agentId: string): ThreadInboxItem[] {
   const data = getSnapshot();
   const items: ThreadInboxItem[] = [];
   for (const thread of Object.values(data.threads)) {
-    const list = (data.messages[thread.id] ?? []).slice().sort((a, b) => a.createdAt - b.createdAt);
-    const last = list[list.length - 1];
-    const unreadCount = list.filter((m) => m.senderId !== agentId && !m.readAt).length;
+    const all = (data.messages[thread.id] ?? []).slice().sort((a, b) => a.createdAt - b.createdAt);
+    const sentOnly = all.filter((m) => m.status === "sent");
+    const last = sentOnly[sentOnly.length - 1];
+    const unreadCount = sentOnly.filter((m) => m.senderId !== agentId && !m.readAt).length;
     items.push({
       ...thread,
       lastMessage: last ? { content: last.content, createdAt: last.createdAt, senderId: last.senderId, status: last.status } : undefined,
@@ -245,6 +246,12 @@ export function getMessages(threadId: string): Message[] {
   const data = getSnapshot();
   const list = data.messages[threadId] ?? [];
   return list.slice().sort((a, b) => a.createdAt - b.createdAt);
+}
+
+/** Messages to display in the thread: own messages (all statuses) + other party's messages only when status === "sent". Failed/sending from the other side are hidden. */
+export function getMessagesForDisplay(threadId: string, currentUserId: string): Message[] {
+  const list = getMessages(threadId);
+  return list.filter((m) => m.senderId === currentUserId || m.status === "sent");
 }
 
 /** Set "user is typing" in this thread; expires after TYPING_TTL_MS. Debounce by calling on each keystroke. */

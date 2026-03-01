@@ -6,7 +6,7 @@ import { ChatWidget } from "./ChatWidget";
 import {
   useStore,
   addMessage as addMessageToStore,
-  getMessages,
+  getMessagesForDisplay,
   simulateSendConfirm,
   retryMessage,
   setTyping,
@@ -30,7 +30,7 @@ export function VisitorView() {
   const [visitorId, setVisitorId] = useState("");
   const [threadId, setThreadId] = useState("");
   useStore(); // re-render when store updates (e.g. agent reply from another tab)
-  const messages = threadId ? getMessages(threadId) : [];
+  const messages = threadId && visitorId ? getMessagesForDisplay(threadId, visitorId) : [];
 
   useEffect(() => {
     setVisitorId(getOrCreateId(VISITOR_ID_KEY));

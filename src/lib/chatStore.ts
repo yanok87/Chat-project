@@ -6,13 +6,22 @@ import type { Thread, Message, ThreadInboxItem, MessageStatus } from "@/types";
 const STORAGE_KEY = "minicom-data";
 export const AGENT_ID = "agent-1";
 
+export interface TypingState {
+  userId: string;
+  displayName: string;
+  until: number;
+}
+
 export interface StoreData {
   threads: Record<string, Thread>;
   messages: Record<string, Message[]>;
+  typing: Record<string, TypingState>;
 }
 
+const TYPING_TTL_MS = 2000;
+
 function defaultData(): StoreData {
-  return { threads: {}, messages: {} };
+  return { threads: {}, messages: {}, typing: {} };
 }
 
 /** Cached empty snapshot for getServerSnapshot (must be stable to avoid infinite loop). */
@@ -27,6 +36,7 @@ function load(): StoreData {
     return {
       threads: data.threads ?? {},
       messages: data.messages ?? {},
+      typing: data.typing ?? {},
     };
   } catch {
     return defaultData();
@@ -203,7 +213,9 @@ export function markThreadReadBy(threadId: string, userId: string): void {
       changed = true;
     }
   }
-  if (changed) save(data);
+  if (changed) {
+    save(data);
+  }
 }
 
 /** Inbox list: threads with lastMessage and unreadCount, sorted by unread then recent. */
@@ -233,4 +245,28 @@ export function getMessages(threadId: string): Message[] {
   const data = getSnapshot();
   const list = data.messages[threadId] ?? [];
   return list.slice().sort((a, b) => a.createdAt - b.createdAt);
+}
+
+/** Set "user is typing" in this thread; expires after TYPING_TTL_MS. Debounce by calling on each keystroke. */
+export function setTyping(threadId: string, userId: string, displayName: string): void {
+  const data = load();
+  data.typing = data.typing ?? {};
+  data.typing[threadId] = { userId, displayName, until: Date.now() + TYPING_TTL_MS };
+  save(data);
+}
+
+/** Clear typing for this thread (e.g. when user sends). */
+export function clearTyping(threadId: string): void {
+  const data = load();
+  if (!data.typing || !data.typing[threadId]) return;
+  delete data.typing[threadId];
+  save(data);
+}
+
+/** Who is currently typing in this thread (if until > now). */
+export function getTyping(threadId: string): TypingState | null {
+  const data = getSnapshot();
+  const t = data.typing?.[threadId];
+  if (!t || t.until <= Date.now()) return null;
+  return t;
 }

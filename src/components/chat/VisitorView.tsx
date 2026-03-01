@@ -9,6 +9,8 @@ import {
   getMessages,
   simulateSendConfirm,
   retryMessage,
+  setTyping,
+  clearTyping,
 } from "@/lib/chatStore";
 
 const VISITOR_ID_KEY = "minicom-visitor-id";
@@ -38,6 +40,7 @@ export function VisitorView() {
   const handleSend = useCallback(
     (content: string) => {
       if (!visitorId || !threadId) return;
+      clearTyping(threadId);
       const isOffline = typeof navigator !== "undefined" && !navigator.onLine;
       const newMessage: Message = {
         id: crypto.randomUUID(),
@@ -52,6 +55,10 @@ export function VisitorView() {
     },
     [threadId, visitorId]
   );
+
+  const handleTyping = useCallback(() => {
+    if (threadId && visitorId) setTyping(threadId, visitorId, "Visitor");
+  }, [threadId, visitorId]);
 
   const handleRetry = useCallback(
     (messageId: string) => {
@@ -104,6 +111,7 @@ export function VisitorView() {
         messages={messages}
         onSend={handleSend}
         onRetry={handleRetry}
+        onTyping={handleTyping}
         title="Support"
         disabled={!visitorId}
       />

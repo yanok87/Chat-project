@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Message } from "@/types";
 import { MessageList } from "./MessageList";
 import { ChatInput } from "./ChatInput";
+import { TypingIndicator } from "./TypingIndicator";
 
 interface ChatWidgetProps {
   /** Current visitor/participant id (for bubble alignment and send) */
@@ -16,6 +17,8 @@ interface ChatWidgetProps {
   disabled?: boolean;
   /** Called when user clicks Retry on a failed message (messageId) */
   onRetry?: (messageId: string) => void;
+  /** Called on each keystroke to show typing to the other side */
+  onTyping?: () => void;
 }
 
 export function ChatWidget({
@@ -26,6 +29,7 @@ export function ChatWidget({
   title = "Chat",
   disabled = false,
   onRetry,
+  onTyping,
 }: ChatWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -73,7 +77,8 @@ export function ChatWidget({
             </button>
           </div>
           <MessageList messages={messages} currentUserId={currentUserId} onRetry={onRetry} />
-          <ChatInput onSend={onSend} disabled={disabled} autoFocus />
+          <TypingIndicator threadId={threadId} currentUserId={currentUserId} />
+          <ChatInput onSend={onSend} disabled={disabled} autoFocus onTyping={onTyping} />
         </div>
       )}
     </>

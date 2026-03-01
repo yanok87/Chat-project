@@ -8,6 +8,8 @@ interface ChatInputProps {
   placeholder?: string;
   /** Focus the input when mounted (e.g. when chat panel opens) */
   autoFocus?: boolean;
+  /** Call on each keystroke (debounced by caller) to show "typing" to the other side */
+  onTyping?: () => void;
 }
 
 export function ChatInput({
@@ -15,6 +17,7 @@ export function ChatInput({
   disabled = false,
   placeholder = "Type a message…",
   autoFocus = false,
+  onTyping,
 }: ChatInputProps) {
   const [value, setValue] = useState("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -30,6 +33,14 @@ export function ChatInput({
     setValue("");
   }, [value, disabled, onSend]);
 
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setValue(e.target.value);
+      onTyping?.();
+    },
+    [onTyping]
+  );
+
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -42,7 +53,7 @@ export function ChatInput({
       <textarea
         ref={inputRef}
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={handleChange}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         disabled={disabled}

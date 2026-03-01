@@ -10,6 +10,8 @@ import {
   markThreadReadBy,
   retryMessage,
   simulateSendConfirm,
+  setTyping,
+  clearTyping,
   AGENT_ID,
 } from "@/lib/chatStore";
 import { AgentInbox } from "@/components/agent/AgentInbox";
@@ -23,13 +25,15 @@ export default function AgentPage() {
   const threads = getThreadsForInbox(AGENT_ID);
   const messages = selectedThreadId ? getMessages(selectedThreadId) : [];
 
+  // Mark thread as read when agent opens it or when messages change (e.g. agent replied or visitor sent)
   useEffect(() => {
     if (selectedThreadId) markThreadReadBy(selectedThreadId, AGENT_ID);
-  }, [selectedThreadId]);
+  }, [selectedThreadId, messages.length]);
 
   const handleSend = useCallback(
     (content: string) => {
       if (!selectedThreadId) return;
+      clearTyping(selectedThreadId);
       const isOffline = typeof navigator !== "undefined" && !navigator.onLine;
       const newMessage: Message = {
         id: crypto.randomUUID(),
@@ -44,6 +48,10 @@ export default function AgentPage() {
     },
     [selectedThreadId]
   );
+
+  const handleTyping = useCallback(() => {
+    if (selectedThreadId) setTyping(selectedThreadId, AGENT_ID, "Support");
+  }, [selectedThreadId]);
 
   const handleRetry = useCallback(
     (messageId: string) => {
@@ -79,6 +87,7 @@ export default function AgentPage() {
               messages={messages}
               onSend={handleSend}
               onRetry={handleRetry}
+              onTyping={handleTyping}
             />
           ) : (
             <div className="flex-1 flex items-center justify-center text-gray-500">

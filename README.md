@@ -2,6 +2,8 @@
 
 A prototype live customer support system (visitor chat widget + agent inbox), built with Next.js (App Router), React, and Tailwind CSS.
 
+**Live demo:** [https://chat-project-peach-nine.vercel.app/](https://chat-project-peach-nine.vercel.app/)
+
 ## Project overview
 
 - **Home** (`/`): Entry point with “Enter as user” and “Enter as support agent”.

@@ -45,6 +45,7 @@ export default function AgentPage() {
       };
       addMessage(newMessage);
       if (!isOffline) simulateSendConfirm(selectedThreadId, newMessage.id);
+      markThreadReadBy(selectedThreadId, AGENT_ID);
     },
     [selectedThreadId]
   );

@@ -53,7 +53,7 @@ export function MessageList({ messages, currentUserId, className = "", onRetry }
   return (
     <div
       ref={parentRef}
-      className={`flex-1 overflow-y-auto overflow-x-hidden p-3 ${className}`}
+      className={`flex-1 overflow-y-auto overflow-x-hidden px-3 pt-3 pb-6 ${className}`}
       role="log"
       aria-live="polite"
       aria-label="Chat messages"

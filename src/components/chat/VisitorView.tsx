@@ -57,6 +57,7 @@ export function VisitorView() {
     },
     [threadId, visitorId]
   );
+  
 
   const handleTyping = useCallback(() => {
     if (threadId && visitorId) setTyping(threadId, visitorId, "Visitor");

@@ -36,6 +36,32 @@ A prototype live customer support system (visitor chat widget + agent inbox), bu
 
 - **Visitor** and **agent** both read/write the same store. No backend; all state is in the browser (localStorage + in-memory cache).
 
+## Source layout
+
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── page.tsx            # Home: "Enter as user" → /visitor, "Enter as support agent" → /agent
+│   ├── visitor/
+│   │   └── page.tsx        # Mock site + chat widget (VisitorView)
+│   ├── agent/
+│   │   └── page.tsx        # Agent inbox + thread view
+│   ├── layout.tsx
+│   └── globals.css
+├── components/
+│   ├── chat/               # Visitor widget: ChatWidget, MessageList, MessageBubble, ChatInput, TypingIndicator, VisitorView
+│   ├── agent/              # Agent app: AgentInbox (keyboard nav), AgentThreadView
+│   ├── StoreInit.tsx       # Inits store from localStorage on load
+│   ├── ThemeToggle.tsx
+│   ├── OfflineBanner.tsx
+│   └── ErrorBoundary.tsx
+├── contexts/
+│   └── ThemeContext.tsx    # Theme (light/dark) with persistence
+├── lib/
+│   └── chatStore.ts        # localStorage store; optimistic send (sending→sent/failed), setMessageStatus, retryMessage, simulateSendConfirm; upsert by id (out-of-order safe)
+└── types/                  # Data model (thread, message, participant)
+```
+
 ## State management choices and trade-offs
 
 - **Single module store** (`lib/chatStore.ts`) with **localStorage** and **useSyncExternalStore**:
@@ -45,16 +71,8 @@ A prototype live customer support system (visitor chat widget + agent inbox), bu
 
 ## How AI helped
 
-*(Fill this in with your own notes. Example: "Used Cursor to scaffold the Next.js app and data model; asked for 'optimistic send and retry' and got addMessage + setMessageStatus + Retry button flow; edited the README and tests myself.")*
+Cursor helped with most of the implementation: scaffolding the Next.js app and data model; the optimistic send and retry flow (addMessage, setMessageStatus, Retry button); dark mode (system preference + toggle); notification badge and sound on new messages; a11y (keyboard shortcuts, screen reader, focus); moving the source folder structure from `src/FOLDER_STRUCTURE.md` into this README; and keeping the README in sync (e.g. "Test failed send" steps, default 20% fail rate). I did the debugging, project and user logic updates, user experience improvements, state logic, and the decisions on what belongs in Context vs localStorage; I also directed the work, tested it, and did some README and test edits myself.
 
-## Improvements with more time
-
-- **Backend**: Persist threads and messages to a DB; realtime via WebSockets or a service (e.g. Supabase/Firebase).
-- **Presence and typing**: "Agent is typing…" / "Visitor is typing…" with debounced updates.
-- **Performance**: Virtualized message list (e.g. react-window) for very long threads.
-- **Tests**: More component tests (e.g. MessageBubble Retry), E2E (Playwright) for full visitor → agent flow.
-- **Accessibility**: More keyboard shortcuts and screen-reader tweaks.
-- **Bonus**: Dark mode, notification sound/badge on new message, thread persistence to a real API.
 
 ## Running the project
 
@@ -67,10 +85,6 @@ npm run test   # Jest + React Testing Library
 
 - **Visitor**: Open `/`, click “Enter as user”, then use the chat button and send messages.
 - **Agent**: Open `/`, click “Enter as support agent” (or go to `/agent`), pick a conversation, reply. Use another tab for `/visitor` to see replies in the widget.
-- **Test failed send**: In `src/lib/chatStore.ts` set `SEND_FAIL_RATE_FOR_DEMO = 1`, then send a message and use the Retry button.
+- **Test failed send**: By default `SEND_FAIL_RATE_FOR_DEMO = 0.2` in `src/lib/chatStore.ts`, so ~20% of sends simulate failure. Set it to `1` to force every send to fail. After ~400ms a failed message shows "Failed"; use the Retry button on that bubble (visitor or agent thread) to mark it as sent.
 
-## Submission checklist
 
-- [ ] GitHub repo link
-- [ ] Live demo link (e.g. Vercel / Netlify)
-- [ ] README with all required sections (this file)

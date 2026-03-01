@@ -71,7 +71,7 @@ src/
 
 ## How AI helped
 
-Cursor helped with most of the implementation: scaffolding the Next.js app and data model; the optimistic send and retry flow (addMessage, setMessageStatus, Retry button); dark mode (system preference + toggle); notification badge and sound on new messages; a11y (keyboard shortcuts, screen reader, focus); moving the source folder structure from `src/FOLDER_STRUCTURE.md` into this README; and keeping the README in sync (e.g. "Test failed send" steps, default 20% fail rate). I did the debugging, project and user logic updates, user experience improvements, state logic, and the decisions on what belongs in Context vs localStorage; I also directed the work, tested it, and did some README and test edits myself.
+Cursor helped with most of the implementation: scaffolding the Next.js app and data model; the optimistic send and retry flow (addMessage, setMessageStatus, Retry button); dark mode (system preference + toggle); notification badge and sound on new messages; a11y (keyboard shortcuts, screen reader, focus); keeping the README in sync. I did the debugging, project and user logic updates, user experience improvements, state logic, and the decisions on what belongs in Context vs localStorage; I also directed the work, tested it, and did some README and test edits myself.
 
 
 ## Running the project

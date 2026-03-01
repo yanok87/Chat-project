@@ -46,6 +46,7 @@ function load(): StoreData {
 function save(data: StoreData): void {
   if (typeof window === "undefined") return;
   try {
+    cache = data;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     notify();
   } catch {
@@ -61,15 +62,53 @@ function notify(): void {
   listeners.forEach((cb) => cb());
 }
 
+const POLL_INTERVAL_MS = 1500;
+
+function syncFromStorage(): void {
+  cache = load();
+  listeners.forEach((cb) => cb());
+}
+
+function onFocus(): void {
+  syncFromStorage();
+}
+
+function onVisibilityChange(): void {
+  if (document.visibilityState === "visible") syncFromStorage();
+}
+
+function startPollingWhenVisible(): number {
+  return window.setInterval(() => {
+    if (document.visibilityState === "visible") syncFromStorage();
+  }, POLL_INTERVAL_MS);
+}
+
+let pollIntervalId: number | null = null;
+
 function subscribe(callback: () => void): () => void {
+  const wasEmpty = listeners.size === 0;
   listeners.add(callback);
   if (typeof window !== "undefined") {
     window.addEventListener("storage", onStorage);
+    if (wasEmpty) {
+      window.addEventListener("focus", onFocus);
+      document.addEventListener("visibilitychange", onVisibilityChange);
+      pollIntervalId = startPollingWhenVisible();
+    }
+    syncFromStorage();
   }
   return () => {
     listeners.delete(callback);
     if (typeof window !== "undefined") {
       window.removeEventListener("storage", onStorage);
+      if (listeners.size === 0) {
+        window.removeEventListener("focus", onFocus);
+        document.removeEventListener("visibilitychange", onVisibilityChange);
+        if (pollIntervalId !== null) {
+          clearInterval(pollIntervalId);
+          pollIntervalId = null;
+        }
+      }
     }
   };
 }
@@ -248,10 +287,15 @@ export function getMessages(threadId: string): Message[] {
   return list.slice().sort((a, b) => a.createdAt - b.createdAt);
 }
 
-/** Messages to display in the thread: own messages (all statuses) + other party's messages only when status === "sent". Failed/sending from the other side are hidden. */
+/** Messages to display: own (all statuses) + other party's only when sending or sent. Failed messages from the other side are hidden. */
 export function getMessagesForDisplay(threadId: string, currentUserId: string): Message[] {
   const list = getMessages(threadId);
-  return list.filter((m) => m.senderId === currentUserId || m.status === "sent");
+  return list.filter(
+    (m) =>
+      m.senderId === currentUserId ||
+      m.status === "sent" ||
+      m.status === "sending"
+  );
 }
 
 /** Set "user is typing" in this thread; expires after TYPING_TTL_MS. Debounce by calling on each keystroke. */

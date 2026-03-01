@@ -45,7 +45,7 @@ export function MessageList({ messages, currentUserId, className = "", onRetry }
         aria-live="polite"
         aria-label="Chat messages"
       >
-        <p className="text-sm text-gray-500 text-center py-4">No messages yet. Say hello!</p>
+        <p className="text-sm text-gray-500 text-center py-4 dark:text-gray-400">No messages yet. Say hello!</p>
       </div>
     );
   }

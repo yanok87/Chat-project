@@ -58,7 +58,7 @@ export function OfflineBanner() {
 
   return (
     <div
-      className="sticky top-0 z-50 px-4 py-2 bg-amber-500 text-amber-900 text-center text-sm font-medium"
+      className="sticky top-0 z-50 px-4 py-2 bg-amber-500 text-amber-900 text-center text-sm font-medium dark:bg-amber-600 dark:text-amber-100"
       role="status"
       aria-live="polite"
     >

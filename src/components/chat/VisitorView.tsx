@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import Link from "next/link";
 import type { Message } from "@/types";
 import { ChatWidget } from "./ChatWidget";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   useStore,
   addMessage as addMessageToStore,
@@ -70,35 +72,31 @@ export function VisitorView() {
   return (
     <>
       {/* Mock website content */}
-      <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-        <header className="border-b border-slate-200 bg-white/80 backdrop-blur">
+      <main id="main" className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-gray-900 dark:to-gray-800">
+        <header className="border-b border-slate-200 bg-white/80 backdrop-blur dark:border-gray-700 dark:bg-gray-900/80">
           <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-            <span className="text-xl font-semibold text-slate-800">Acme Inc.</span>
-            <nav className="text-sm text-slate-600">
-              <a href="#" className="hover:text-slate-900">Product</a>
-              <span className="mx-3">·</span>
-              <a href="#" className="hover:text-slate-900">Pricing</a>
-              <span className="mx-3">·</span>
-              <a href="#" className="hover:text-slate-900">Contact</a>
-            </nav>
+            <Link href="/" className="text-xl font-semibold text-slate-800 dark:text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded">
+              MiniCom
+            </Link>
+            <ThemeToggle />
           </div>
         </header>
         <section className="max-w-4xl mx-auto px-6 py-20">
-          <h1 className="text-4xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-4xl font-bold text-slate-900 tracking-tight dark:text-white">
             Welcome to our demo site
           </h1>
-          <p className="mt-4 text-lg text-slate-600 max-w-2xl">
+          <p className="mt-4 text-lg text-slate-600 max-w-2xl dark:text-gray-400">
             This is a mock website. Use the chat button in the bottom-right corner to start a
             conversation with support.
           </p>
           <div className="mt-10 grid gap-6 sm:grid-cols-2 max-w-2xl">
-            <div className="p-4 rounded-xl border border-slate-200 bg-white shadow-sm">
-              <h2 className="font-semibold text-slate-800">Fast support</h2>
-              <p className="mt-1 text-sm text-slate-600">Get help via live chat anytime.</p>
+            <div className="p-4 rounded-xl border border-slate-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+              <h2 className="font-semibold text-slate-800 dark:text-white">Fast support</h2>
+              <p className="mt-1 text-sm text-slate-600 dark:text-gray-400">Get help via live chat anytime.</p>
             </div>
-            <div className="p-4 rounded-xl border border-slate-200 bg-white shadow-sm">
-              <h2 className="font-semibold text-slate-800">Real humans</h2>
-              <p className="mt-1 text-sm text-slate-600">Our team is here to assist you.</p>
+            <div className="p-4 rounded-xl border border-slate-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+              <h2 className="font-semibold text-slate-800 dark:text-white">Real humans</h2>
+              <p className="mt-1 text-sm text-slate-600 dark:text-gray-400">Our team is here to assist you.</p>
             </div>
           </div>
         </section>
